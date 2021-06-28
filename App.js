@@ -1,36 +1,29 @@
-import React from 'react'
-import NavBar from './components/Navbar';
-import "./App.css";
-import { BrowserRouter,Route } from 'react-router-dom';
-import Home from './components/screens/Home';
-import Profile from './components/screens/Profile';
-import Signup from './components/screens/Signup';
-import Login from './components/screens/Login';
-import CreatePost from './components/screens/CreatePost';
+const express= require('express');
+const app = express();
+const mongoose =  require('mongoose');
+const PORT =  5000;
+const {MONGOURI} = require('./keys');
 
- function App() {
-  return (
+mongoose.connect(MONGOURI,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+mongoose.connection.on('connected',()=>{
+  console.log("Connected to Mongo!");
+});
+mongoose.connection.on('error',(err)=>{
+    console.log("Error while connecting to Mongo",err);
+});
 
-    <BrowserRouter>
-        <NavBar />
-        <Route exact path="/">
-          <Home/>
-        </Route>
-        <Route path="/login">
-          <Login/>
-        </Route>
-        <Route path="/signup">
-          <Signup/>
-        </Route>
-        <Route path="/profile">
-          <Profile/>
-        </Route>
-        <Route path="/create">
-          <CreatePost/>
-        </Route>
+require('./models/user');
+require('./models/post');
 
-    </BrowserRouter>
-  )
-}
 
-export default App;
+app.use(express.json());
+app.use(require('./routes/auth'));
+app.use(require('./routes/post'));
+
+app.listen(PORT,()=>{
+    console.log("server is running on",PORT);
+})
+
